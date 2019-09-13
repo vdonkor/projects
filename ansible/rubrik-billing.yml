@@ -1,7 +1,8 @@
 ---
   name: "Rubrik billing job"
-  hosts: "{{host}}"
-
+  hosts: localhost
+  connection: local
+ 
   envs_files:
     config/env-file.yml
 

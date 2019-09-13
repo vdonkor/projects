@@ -1,5 +1,5 @@
----
-  name: "Rubrik billing job"
+
+- name: "Rubrik billing job"
   hosts: localhost
   connection: local
  

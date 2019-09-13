@@ -3,7 +3,7 @@
 - name: get script over
   template:
     src: rubrik.py.j2
-    dest: "{{ansible_env.HOME}}"
+    dest: "{{ansible_env.HOME}}/rubrik.py"
     
 - name: run billing script
   command: python rubrik.py

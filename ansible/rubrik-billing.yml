@@ -1,0 +1,9 @@
+---
+  name: "Rubrik billing job"
+  hosts: "{{host}}"
+
+  envs_files:
+    config/env-file.yml
+
+  roles:
+    - rubrik-billing

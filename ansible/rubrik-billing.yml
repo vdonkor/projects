@@ -3,7 +3,7 @@
   hosts: localhost
   connection: local
  
-  envs_files:
+  vars_files:
     config/env-file.yml
 
   roles:

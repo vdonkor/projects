@@ -30,11 +30,11 @@ mysql_config = {
 }
 
 report_config = {
-    "name": "BillingTask",
+    "name": "AllSitesData",
     "reportTemplate": "ObjectProtectionSummary"
 }
 update_config = {
-    "name": "BillingTask",
+    "name": "AllSitesData",
 }
 
 table_config = {
@@ -50,7 +50,7 @@ def update_billing(org,object_name,object_size):
         for elem in zip(org,object_name, object_size):
             update_bill = ("INSERT INTO billing "
               "(organization,object_in_custody,object_size,price_per_gb)"
-              "VALUES (%s, %s, %s, 0.3)")
+              "VALUES (%s, %s, %s)")
             cursor.execute(update_bill,elem)
             connection.commit()
     except mysql.connector.Error as err:
@@ -69,7 +69,7 @@ def get_report_ids(name):
     return report_id_table[name]
 
 
-report_id = str(get_report_ids("BillingTask"))
+report_id = str(get_report_ids("AllSitesData"))
 
 # table = rubrik.get("internal","/report/"+report_id)
 # csv_link = rubrik.get("internal","/report/"+report_id+"/csv_link")
@@ -88,25 +88,23 @@ report_table = rubrik.post("internal","/report/"+report_id+"/table",config=table
 # print(response)
 # print(report_table['dataGrid'][0][2])
 
-object_name = []
+object_logical_size = []
 organization = []
-object_size = []
+local_data_transferred = []
 
-for objects in report_table['dataGrid']:
-    object_name.append(objects[1])
+for obj_size in report_table['dataGrid']:
+  object_logical_size.append(obj_size[3])
 
 for org in report_table['dataGrid']:
-    organization.append(org[9])
+  organization.append(org[1])
 
-for size in report_table['dataGrid']:
-    object_size.append(size[14])
-
-for i in report_table['dataGrid']:
-    object_size.append(size[14])
+for local_data_tx in report_table['dataGrid']:
+  local_data_transferred.append(local_data_tx[4])
+  
 
 # with open('rubrik_sample.csv','a+') as csv_file:
 #     for val in zip(organization,object_name,object_size):
 #         csv_writer = csv.writer(csv_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 #         csv_writer.writerow(val)
 
-update_billing(organization,object_name,object_size)
+update_billing(organization, object_logical_size, local_data_transferred)

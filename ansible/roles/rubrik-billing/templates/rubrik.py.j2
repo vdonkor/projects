@@ -43,19 +43,19 @@ table_config = {
   "sortOrder": "asc"
 }
 
-def update_billing(org,object_name,object_size):
-    try:
-        connection = mysql.connector.connect(**mysql_config)
-        cursor = connection.cursor()
-        for elem in zip(org,object_name, object_size):
-            update_bill = ("INSERT INTO billing "
-              "(organization,object_in_custody,object_size,price_per_gb)"
-              "VALUES (%s, %s, %s)")
-            cursor.execute(update_bill,elem)
-            connection.commit()
-    except mysql.connector.Error as err:
-        print(err)
-    connection.close()
+def update_billing(org, object_name, object_size):
+  try:
+    connection = mysql.connector.connect(**mysql_config)
+    cursor = connection.cursor()
+    for elem in zip(org, object_name, object_size):
+      update_bill = ("INSERT INTO billing "
+                     "(organization,object_logical_size,local_data_transferred)"
+                     "VALUES (%s, %s, %s)")
+      cursor.execute(update_bill, elem)
+      connection.commit()
+  except mysql.connector.Error as err:
+    print(err)
+  connection.close()
 
 def output_json(name):
     #parsed = json.loads(name)

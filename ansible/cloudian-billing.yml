@@ -1,0 +1,9 @@
+- name: "Cloudian billing job"
+  hosts: localhost
+  connection: local
+ 
+  vars_files:
+    config/env-file.yml
+
+  roles:
+    - cloudian-billing

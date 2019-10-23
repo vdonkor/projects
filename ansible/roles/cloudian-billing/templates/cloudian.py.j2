@@ -1,0 +1,103 @@
+'''
+Created on Jul 22, 2019
+
+@author: BasitM
+'''
+# https://pypi.org/project/cloudianapi/
+
+#!/usr/bin/env python
+from cloudianapi.client import CloudianAPIClient
+import json
+from pip._vendor.urllib3 import response
+from textwrap import indent
+from logging import _startTime
+from cloudianapi.components.usage import Usage
+import mysql.connector
+from mysql.connector import errorcode
+from datetime import datetime, timedelta 
+
+if __name__ == "__main__":
+
+    client = CloudianAPIClient(
+        url="{{cloudian_url}}",
+        user="{{cloudian_username}}",
+        key="{{cloudian_key}}",
+        port="{{cloudian_port}}",
+       
+    )
+
+mysql_config = {
+  'user': '{{cloudian_db_user}}',
+  'password': '{{cloudian_db_password}}',
+  'host': '{{db_host}}',
+  'database': '{{cloudian_db_name}}',
+  'raise_on_warnings': True
+}
+
+
+def usage_data(groupName,StartPeriod,EndPeriod):
+    
+     
+    max_value = [] 
+    group_with_data = []
+    
+    for group_name in groupName:
+         
+        mygroup_name = str(group_name + '|*')
+        put_data = client.usage(id=mygroup_name,operation='SB',startTime= StartPeriod,endTime= EndPeriod,granularity='day')
+        if put_data == None:
+           continue         
+        max_value.append(put_data[0]['maxValue'])
+        group_with_data.append(group_name)
+          
+    return group_with_data,max_value
+    
+        
+def display_group_list_retain():
+    group_name_list = []
+    group_data=client.group.list(method='GET')
+    for groups in group_data:
+        group_name_list.append((groups['groupId']))
+    return group_name_list  
+    
+group_list = display_group_list_retain()
+time_start = (datetime.now() - timedelta(days=1)).strftime('%Y%m%d%H%M')
+time_end = (datetime.now()).strftime('%Y%m%d%H%M')
+
+
+group,maxVal=(usage_data(group_list,time_start,time_end))
+
+
+def update_bill(group,maxVal):
+    try:
+        connection = mysql.connector.connect(**mysql_config)
+        cursor = connection.cursor()
+        for elem in zip(group,maxVal):
+            update_bill = ("INSERT INTO billing "
+              "(group_name,max_value)"
+              "VALUES (%s, %s)")
+            cursor.execute(update_bill,elem)
+            connection.commit()
+    except mysql.connector.Error as err:
+        print(err)
+    connection.close()
+    
+update_bill(group,maxVal)
+
+
+table_config = {
+  "limit": 1000,
+  "sortBy": "group_name",
+  "sortOrder": "asc"
+}
+
+
+    
+    
+
+
+
+
+
+
+

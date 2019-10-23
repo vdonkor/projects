@@ -1,0 +1,11 @@
+---
+# tasks file for cloudian-billing
+- name: get script over
+  template:
+    src: cloudian.py.j2
+    dest: "{{ansible_env.HOME}}/cloudian.py"
+    
+- name: run cloudian script
+  command: python cloudian.py
+  args:
+    chdir: "{{ansible_env.HOME}}"
